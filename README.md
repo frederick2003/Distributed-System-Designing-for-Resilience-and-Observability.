@@ -5,10 +5,10 @@
 **1. Build the images locally**
 ```bash
 cd backendservice
-docker build -t backendservice:1.0 .
+docker build -t backendservice:1.1 .
 
 cd ../clientservice
-docker build -t clientservice:1.0 .
+docker build -t clientservice:1.1 .
 ```
 
 **Check**
@@ -19,8 +19,8 @@ docker images
 **2. Load the images into Kind**
 
 ```bash
-kind load docker-image backendservice:1.0 --name lab3
-kind load docker-image clientservice:1.0 --name lab3
+kind load docker-image backendservice:1.1 --name lab3
+kind load docker-image clientservice:1.1 --name lab3
 ```
 
 **3. Deploy to Kubernetes**
@@ -48,7 +48,7 @@ Client url: http://localhost:8081/api/request-backend
 
 Backend url: http://localhost:8080/api/data
 
-## Complete workfolow
+## Complete workflow
 **Start**
 ```bash
 # 1. Start Docker Desktop
