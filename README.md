@@ -5,10 +5,10 @@
 **1. Build the images locally**
 ```bash
 cd backendservice
-docker build -t backendservice:1.1 .
+docker build -t backendservice:1.2 .
 
 cd ../clientservice
-docker build -t clientservice:1.1 .
+docker build -t clientservice:1.2 .
 ```
 
 **Check**
@@ -19,8 +19,8 @@ docker images
 **2. Load the images into Kind**
 
 ```bash
-kind load docker-image backendservice:1.1 --name lab3
-kind load docker-image clientservice:1.1 --name lab3
+kind load docker-image backendservice:1.2 --name lab3
+kind load docker-image clientservice:1.2 --name lab3
 ```
 
 **3. Deploy to Kubernetes**
@@ -57,8 +57,8 @@ kind get clusters
 kind create cluster --name lab3 --config kind-multi-node.yaml  # if missing
 
 # 3. Load images (if rebuilt)
-kind load docker-image backendservice:1.0 --name lab3
-kind load docker-image clientservice:1.0 --name lab3
+kind load docker-image backendservice:1.2 --name lab3
+kind load docker-image clientservice:1.2 --name lab3
 
 # 4. Apply manifests
 kubectl apply -f backend-deployment.yaml

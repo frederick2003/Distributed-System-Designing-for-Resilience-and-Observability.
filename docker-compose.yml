@@ -1,14 +1,14 @@
 services:
   backend:
     build: ./backendservice
-    image: backendservice:1.1
+    image: backendservice:1.2
     container_name: backend
     ports:
       - "8080:8080"
 
   client:
     build: ./clientservice
-    image: clientservice:1.1
+    image: clientservice:1.2
     container_name: client
     environment:
       - BACKEND_URL=http://backend:8080/api/data
