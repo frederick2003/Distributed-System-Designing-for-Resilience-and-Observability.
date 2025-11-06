@@ -11,6 +11,8 @@ Write-Host "`n Rebuilding and redeploying microservices..." -ForegroundColor Cya
 # ------------------------------------------------
 # Step 1. Build BackendService with Maven
 # ------------------------------------------------
+
+cd ..
 Write-Host "`n Building BackendService JAR..." -ForegroundColor Yellow
 cd backendservice
 mvn clean package -DskipTests
@@ -68,5 +70,11 @@ kubectl apply -f client-deployment.yaml
 Write-Host "`n Checking pods and services..." -ForegroundColor Yellow
 kubectl get pods -o wide
 kubectl get svc
+
+# ------------------------------------------------
+# Step 9. Return back to the run-scripts directory
+# ------------------------------------------------
+
+cd run-scripts
 
 Write-Host "`n Redeploy complete! Your latest code is now running in the cluster." -ForegroundColor Green

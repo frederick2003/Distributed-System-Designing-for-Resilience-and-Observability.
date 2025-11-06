@@ -35,7 +35,9 @@ public class BackendController {
         // Simulate a HTTP error!
         if(failureConfiguration != null){
             dealWithHttpError();
-            responseMessage.append("HTTP error introduced\n");
+            if (failureConfiguration.getFailure_rate() > 0.0 ){
+                responseMessage.append("HTTP error with probability " +failureConfiguration.getFailure_rate()*100 +  "% chance of occuring introduced\n");
+            }
         }
 
         // Get response info
