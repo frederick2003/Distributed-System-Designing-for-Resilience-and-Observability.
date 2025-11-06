@@ -17,6 +17,11 @@ public class ClientController {
 
     @GetMapping("/api/test-circuit")
     public String testCircuit(){
-        return clientService.callBackend();
+        return clientService.callBackendWithCircuitBreaker();
+    }
+
+    @GetMapping("/api/test-retry")
+    public String testRetry(){
+        return clientService.callBackendWithRetry();
     }
 }

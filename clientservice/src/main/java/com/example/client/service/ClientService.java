@@ -1,29 +1,33 @@
 package com.example.client.service;
 
-
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnStateTransitionEvent;
+import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.retry.event.RetryOnRetryEvent;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import java.time.Duration;
 
 @Service
 public class ClientService {
     private final RestTemplate restTemplate = new RestTemplate();
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+    private final RetryRegistry retryRegistry;
     private static final String BACKEND_URL = "http://backend:8080/api/data";
     private final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
-    private final CircuitBreakerRegistry circuitBreakerRegistry;
-
-    public ClientService(CircuitBreakerRegistry circuitBreakerRegistry){
+    public ClientService(CircuitBreakerRegistry circuitBreakerRegistry, RetryRegistry retryRegistry){
         this.circuitBreakerRegistry = circuitBreakerRegistry;
+        this.retryRegistry = retryRegistry;
     }
 
     @PostConstruct
-    public void registerEventListener() {
+    public void registerCircuitBreakerLogger() {
         // Access your circuit breaker instance by name
         io.github.resilience4j.circuitbreaker.CircuitBreaker breaker =
                 circuitBreakerRegistry.circuitBreaker("backendServiceBreaker");
@@ -31,6 +35,23 @@ public class ClientService {
         // Listen for state changes
         breaker.getEventPublisher()
                 .onStateTransition(this::logStateChange);
+    }
+
+    @PostConstruct
+    public void registerRetryLogger(){
+        io.github.resilience4j.retry.Retry retry =  
+                retryRegistry.retry("backendServiceRetry");
+
+        retry.getEventPublisher().onRetry(event -> {
+        Duration wait = event.getWaitInterval();
+        Throwable cause = event.getLastThrowable();
+        logger.info("Retry attempt #{} for '{}' after delay {} ms (cause: {})",
+                event.getNumberOfRetryAttempts(),
+                event.getName(),
+                wait != null ? wait.toMillis() : 0,
+                cause != null ? cause.getClass().getSimpleName() : "unknown");
+    });
+        logger.info("retry listener registered for '{}'", retry.getName());
     }
 
     private void logStateChange(CircuitBreakerOnStateTransitionEvent event) {
@@ -41,12 +62,18 @@ public class ClientService {
     }
 
     @CircuitBreaker(name = "backendServiceBreaker", fallbackMethod = "fallbackResponse")
-    public String callBackend(){
-        logger.info("Attempting to call backend at {}", BACKEND_URL);
-        return restTemplate.getForObject(BACKEND_URL,String.class);
+    public String callBackendWithCircuitBreaker(){
+        logger.info("[CB TEST] Calling backend with Circuit Breaker only");
+        return restTemplate.getForObject(BACKEND_URL, String.class);
     }
 
-    public String fallbackResponse(Exception e){
+    @Retry(name = "backendServiceRetry", fallbackMethod = "fallbackResponse")
+    public String callBackendWithRetry(){
+        logger.info("[RETRY TEST] Calling backend with Retry + Jitter only");
+        return restTemplate.getForObject(BACKEND_URL, String.class);
+    }
+
+    public String fallbackResponse(Throwable e){
         logger.warn("Fallback triggered: {}", e.getMessage());
         return "Fallback: Backend unavailable (" + e.getMessage() + ")";
     }

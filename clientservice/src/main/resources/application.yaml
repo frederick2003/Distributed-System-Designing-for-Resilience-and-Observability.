@@ -1,7 +1,15 @@
 server:
   port: 8081
+
+logging:
+  level:
+    io.github.resilience4j.retry: INFO
+    io.github.resilience4j.circuitbreaker: INFO
+    com.example.client.service: INFO
+
 resilience4j:
   circuitbreaker:
+    aspect-order: 1
     instances:
       backendServiceBreaker:
         register-health-indicator: true
@@ -13,3 +21,18 @@ resilience4j:
         automatic-transition-from-open-to-half-open-enabled: true
         minimum-number-of-calls: 5
         event-consumer-buffer-size: 10
+  retry:
+    aspect-order: 2
+    instances:
+      backendServiceRetry:
+        max-attempts: 10
+        wait-duration: 2s
+        enable-randomized-wait: true
+        randomization-factor: 0.5
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2.0
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.RestClientException
+          - java.io.IOException
