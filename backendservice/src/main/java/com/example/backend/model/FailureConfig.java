@@ -7,6 +7,13 @@ public class FailureConfig {
     private double failure_rate;
     private int status_code;
 
+    public FailureConfig(){}
+
+    public FailureConfig(double failure_rate, int status_code){
+        setFailure_rate(failure_rate);
+        setStatus_code(status_code);
+    }
+
     // Getters and setters
     public double getFailure_rate(){
         return failure_rate;

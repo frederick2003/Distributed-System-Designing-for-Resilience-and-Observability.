@@ -1,0 +1,15 @@
+server:
+  port: 8081
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendServiceBreaker:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        wait-duration-in-open-state: 5s
+        automatic-transition-from-open-to-half-open-enabled: true
+        minimum-number-of-calls: 5
+        event-consumer-buffer-size: 10

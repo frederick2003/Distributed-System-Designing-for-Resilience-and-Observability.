@@ -36,6 +36,11 @@ kubectl get pods -o wide
 kubectl get svc
 ```
 
+**View Pod Logs**
+```bash
+kubectl logs <pod-name> -f
+```
+
 
 ## Accessing the Application
 Using Port Forwarding to expose the port on your local machine:
@@ -64,6 +69,25 @@ kind load docker-image clientservice:1.2 --name lab3
 kubectl apply -f backend-deployment.yaml
 kubectl apply -f client-deployment.yaml
 ```
+
+**Example of latency configuration JSON**
+```yaml
+{
+   "delay_rate": "0.2",
+   "delay_ms": "200"
+}
+```
+
+**Example of HTTP Request Error**
+
+```yaml
+{
+  "failure_rate": "0.2",
+  "status_code": "500"
+}
+```
+
+
 
 **Start**
 Quit docker desktop to pause the cluster.

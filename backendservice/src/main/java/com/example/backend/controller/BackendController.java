@@ -2,7 +2,10 @@ package com.example.backend.controller;
 
 import com.example.backend.model.FailureConfig;
 import com.example.backend.model.LatencyConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,56 +19,94 @@ public class BackendController {
     private final Random random = new Random();
     private FailureConfig failureConfiguration;
     private LatencyConfig latencyConfiguration;
-    private final Random rand = new Random();
-
+    private static final Logger logger = LoggerFactory.getLogger(BackendController.class);
 
     @GetMapping("/api/data")
     public String getData() throws InterruptedException{
-        String responseMessage = "";
+
+        StringBuilder responseMessage = new StringBuilder();
+
         // Simulate some sort of latency spike
         if (latencyConfiguration != null){
             dealWithLatencyLag();
-            responseMessage = responseMessage.concat("Latency spike introduced\n");
+            responseMessage.append("Latency spike introduced\n");
         }
 
         // Simulate a HTTP error!
         if(failureConfiguration != null){
             dealWithHttpError();
-            responseMessage = responseMessage.concat("HTTP error introduced\n");
+            responseMessage.append("HTTP error introduced\n");
         }
-        return responseMessage.concat("Backend response OK at" + System.currentTimeMillis());
+
+        // Get response info
+        long timeStamp = System.currentTimeMillis();
+        String successMessage = "Backend response OK at" + timeStamp;
+
+        // Log response info
+        logger.info(successMessage);
+
+        // Return response String
+        responseMessage.append(successMessage);
+        return responseMessage.toString();
     }
 
     @PostMapping("/config/failure")
     public String setFailureConfig(@RequestBody FailureConfig failureConfig){
+        // Set the HTTP failure from the passed JSON
         this.failureConfiguration = failureConfig;
-        return "Failure accepted with failure Rate = " + failureConfiguration.getFailure_rate()
-                + " status_code = " + failureConfiguration.getStatus_code();
+
+        // Log the JSON failure config
+        logger.info("Failure configuration updated: rate={} status_code={}",
+                failureConfig.getFailure_rate(), failureConfig.getStatus_code());
+
+        // Return the failure config
+        return "Failure configuration updated: rate= {" + failureConfiguration.getFailure_rate()
+                + "} status_code = {" + failureConfiguration.getStatus_code() + "}";
     }
 
     @PostMapping("/config/latency")
-    public String setLatencyConfig(@RequestBody LatencyConfig latencyConfig){
+    public ResponseEntity<String> setLatencyConfig(@RequestBody LatencyConfig latencyConfig) throws InterruptedException{
+        // Set the latency error config
         this.latencyConfiguration = latencyConfig;
-        return "Latency configuration accepted with delay in ms = " +  latencyConfiguration.getDelayTime()
-                + ", latency rate = " + latencyConfiguration.getDelay_rate();
+
+        // Log the latency error config
+        logger.info("Latency configuration updated: delay_ms={} delay_rate={}",
+                latencyConfig.getDelay_ms(), latencyConfig.getDelay_rate());
+
+        return ResponseEntity.ok("Latency configuration updated: delay=" +
+                latencyConfig.getDelay_ms() + "ms, rate=" + latencyConfig.getDelay_rate());
     }
 
     private void dealWithHttpError(){
+        // Grab a random number from [0,1]
+        double randomVal = random.nextDouble();
+
+        // Grab the HTTP status code passed from JSON
         int httpStatusCode = failureConfiguration.getStatus_code();
-        if(httpStatusCode >= 100 && httpStatusCode < 600){
-            HttpStatus status = HttpStatus.resolve(httpStatusCode);
-            if(status == null){
-                System.out.println("Http Error code Illegal, Will throw a HTTP: 500 error instead.");
-                status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
-            throw new ResponseStatusException(status, "Simulating a " + httpStatusCode + "code error");
+        HttpStatus status = HttpStatus.resolve(httpStatusCode);
+
+        // if The http status is not valid.
+        // Then default to a 500 error.
+        if (status == null){
+            logger.warn("Invalid HTTP status code {} configured. Defaulting to 500.", httpStatusCode);
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        if(randomVal < failureConfiguration.getFailure_rate()){
+            logger.warn("Simulating HTTP {} error )", failureConfiguration.getStatus_code());
+            throw new ResponseStatusException(status, "Simulated " + failureConfiguration.getStatus_code() + " error.");
         }
     }
 
     private void dealWithLatencyLag() throws InterruptedException{
-        double probabilityOfLatencyLag = rand.nextDouble();
+        // Grab a random number from [0,1]
+        double probabilityOfLatencyLag = random.nextDouble();
+
+        // If the random number < probability of a latencySpike
+        // Timeout the thread
         if(probabilityOfLatencyLag < latencyConfiguration.getDelay_rate()){
-            Thread.sleep(latencyConfiguration.getDelayTime());
+            int delay = latencyConfiguration.getDelay_ms();
+            logger.warn("Simulating latency spike: sleeping for {} ms", delay);
+            Thread.sleep(delay);
         }
     }
 }
