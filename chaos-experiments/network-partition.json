@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "title": "Delete Backend Pod to Test Resilience",
+  "description": "Simulate a backend pod crash to observe client retries and circuit breaker recovery.",
+  "steady-state-hypothesis": {
+    "title": "Client should remain responsive",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "client-returns-200",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "timeout": 3,
+          "verify_tls": false,
+          "url": "http://localhost:8081/api/test-retry",
+          "method": "GET"
+        }
+      }
+    ]
+  },
+  "method": [
+    {
+      "type": "action",
+      "name": "delete-backend-pod",
+      "provider": {
+        "type": "python",
+        "module": "chaosk8s.pod.actions",
+        "func": "terminate_pods",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default",
+          "rand": true
+        }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "backend-recovers",
+      "tolerance": true,
+      "provider": {
+        "type": "python",
+        "module": "chaosk8s.pod.probes",
+        "func": "pods_in_phase",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default"
+        }
+      }
+    }
+  ],
+  "rollbacks": []
+}

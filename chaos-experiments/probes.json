@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "title": "Check client endpoint returns 200",
+  "description": "Sanity probe for client service.",
+  "steady-state-hypothesis": {
+    "title": "Client should be reachable",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "client-is-available",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "timeout": 3,
+          "verify_tls": false,
+          "url": "http://localhost:8081/api/test-retry",
+          "method": "GET"
+        }
+      }
+    ]
+  },
+  "method": []
+}

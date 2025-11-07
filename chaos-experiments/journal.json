@@ -1,0 +1,184 @@
+{
+  "chaoslib-version": "1.44.0",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "node": "Freds_Laptop",
+  "experiment": {
+    "version": "1.0.0",
+    "title": "Delete Backend Pod to Test Resilience",
+    "description": "Simulate a backend pod crash to observe client retries and circuit breaker recovery.",
+    "steady-state-hypothesis": {
+      "title": "Client should remain responsive",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "client-returns-200",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "timeout": 3,
+            "verify_tls": false,
+            "url": "http://localhost:8081/api/test-retry",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "delete-backend-pod",
+        "provider": {
+          "type": "python",
+          "module": "chaosk8s.pod.actions",
+          "func": "terminate_pods",
+          "arguments": {
+            "label_selector": "app=backend",
+            "ns": "default",
+            "rand": true
+          }
+        }
+      },
+      {
+        "type": "probe",
+        "name": "backend-recovers",
+        "tolerance": true,
+        "provider": {
+          "type": "python",
+          "module": "chaosk8s.pod.probes",
+          "func": "pods_in_phase",
+          "arguments": {
+            "label_selector": "app=backend",
+            "ns": "default"
+          }
+        }
+      }
+    ],
+    "rollbacks": [],
+    "dry": null
+  },
+  "start": "2025-11-07T02:35:19.479580+00:00",
+  "status": "completed",
+  "deviated": false,
+  "steady_states": {
+    "before": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "client-returns-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 3,
+              "verify_tls": false,
+              "url": "http://localhost:8081/api/test-retry",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Content-Type": "text/plain;charset=UTF-8",
+              "Content-Length": "35",
+              "Date": "Fri, 07 Nov 2025 02:35:20 GMT",
+              "Keep-Alive": "timeout=60",
+              "Connection": "keep-alive"
+            },
+            "body": "Backend response OK at1762482919983"
+          },
+          "start": "2025-11-07T02:35:19.481157+00:00",
+          "status": "succeeded",
+          "end": "2025-11-07T02:35:20.044199+00:00",
+          "duration": 0.563042,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "after": {
+      "steady_state_met": true,
+      "probes": [
+        {
+          "activity": {
+            "type": "probe",
+            "name": "client-returns-200",
+            "tolerance": 200,
+            "provider": {
+              "type": "http",
+              "timeout": 3,
+              "verify_tls": false,
+              "url": "http://localhost:8081/api/test-retry",
+              "method": "GET"
+            }
+          },
+          "output": {
+            "status": 200,
+            "headers": {
+              "Content-Type": "text/plain;charset=UTF-8",
+              "Content-Length": "35",
+              "Date": "Fri, 07 Nov 2025 02:35:20 GMT",
+              "Keep-Alive": "timeout=60",
+              "Connection": "keep-alive"
+            },
+            "body": "Backend response OK at1762482920298"
+          },
+          "start": "2025-11-07T02:35:20.248340+00:00",
+          "status": "succeeded",
+          "end": "2025-11-07T02:35:20.319792+00:00",
+          "duration": 0.071452,
+          "tolerance_met": true
+        }
+      ]
+    },
+    "during": []
+  },
+  "run": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "delete-backend-pod",
+        "provider": {
+          "type": "python",
+          "module": "chaosk8s.pod.actions",
+          "func": "terminate_pods",
+          "arguments": {
+            "label_selector": "app=backend",
+            "ns": "default",
+            "rand": true
+          }
+        }
+      },
+      "output": [
+        "backend-5846b68bdc-p8fh7"
+      ],
+      "start": "2025-11-07T02:35:20.046375+00:00",
+      "status": "succeeded",
+      "end": "2025-11-07T02:35:20.201092+00:00",
+      "duration": 0.154717
+    },
+    {
+      "activity": {
+        "type": "probe",
+        "name": "backend-recovers",
+        "tolerance": true,
+        "provider": {
+          "type": "python",
+          "module": "chaosk8s.pod.probes",
+          "func": "pods_in_phase",
+          "arguments": {
+            "label_selector": "app=backend",
+            "ns": "default"
+          }
+        }
+      },
+      "output": true,
+      "start": "2025-11-07T02:35:20.202011+00:00",
+      "status": "succeeded",
+      "end": "2025-11-07T02:35:20.246469+00:00",
+      "duration": 0.044458
+    }
+  ],
+  "rollbacks": [],
+  "end": "2025-11-07T02:35:20.321852+00:00",
+  "duration": 0.8423161506652832
+}
