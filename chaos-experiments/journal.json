@@ -4,10 +4,10 @@
   "node": "Freds_Laptop",
   "experiment": {
     "version": "1.0.0",
-    "title": "Delete Backend Pod to Test Resilience",
-    "description": "Simulate a backend pod crash to observe client retries and circuit breaker recovery.",
+    "title": "Retry with Exponential Backoff and Jitter Validation",
+    "description": "Reproduces retry-jitter-test.py to demonstrate Resilience4j retry behaviour under transient backend failure and recovery.",
     "steady-state-hypothesis": {
-      "title": "Client should remain responsive",
+      "title": "Client is healthy when backend responds normally",
       "probes": [
         {
           "type": "probe",
@@ -15,10 +15,9 @@
           "tolerance": 200,
           "provider": {
             "type": "http",
-            "timeout": 3,
-            "verify_tls": false,
+            "method": "GET",
             "url": "http://localhost:8081/api/test-retry",
-            "method": "GET"
+            "timeout": 5
           }
         }
       ]
@@ -26,37 +25,83 @@
     "method": [
       {
         "type": "action",
-        "name": "delete-backend-pod",
+        "name": "phase-1-set-backend-to-fail",
+        "description": "Phase 1: Configure backend to fail 100% (simulate transient outage)",
         "provider": {
-          "type": "python",
-          "module": "chaosk8s.pod.actions",
-          "func": "terminate_pods",
-          "arguments": {
-            "label_selector": "app=backend",
-            "ns": "default",
-            "rand": true
+          "type": "http",
+          "method": "POST",
+          "url": "http://localhost:8080/config/failure",
+          "timeout": 5,
+          "json": {
+            "failure_rate": 1.0,
+            "status_code": 500
           }
         }
       },
       {
         "type": "probe",
-        "name": "backend-recovers",
-        "tolerance": true,
+        "name": "phase-1-client-calls-during-failure",
+        "description": "Send 8 concurrent client calls to trigger retries with backoff + jitter",
         "provider": {
-          "type": "python",
-          "module": "chaosk8s.pod.probes",
-          "func": "pods_in_phase",
-          "arguments": {
-            "label_selector": "app=backend",
-            "ns": "default"
+          "type": "http",
+          "method": "GET",
+          "url": "http://localhost:8081/api/test-retry",
+          "timeout": 5
+        },
+        "repeats": 8
+      },
+      {
+        "type": "action",
+        "name": "phase-2-restore-backend",
+        "description": "Phase 2: Restore backend after initial failures to simulate recovery",
+        "provider": {
+          "type": "http",
+          "method": "POST",
+          "url": "http://localhost:8080/config/failure",
+          "timeout": 5,
+          "json": {
+            "failure_rate": 0.0,
+            "status_code": 500
+          }
+        },
+        "pauses": {
+          "before": 5
+        }
+      },
+      {
+        "type": "probe",
+        "name": "phase-3-client-calls-after-recovery",
+        "description": "Phase 3: Verify subsequent client calls succeed (retry closure)",
+        "provider": {
+          "type": "http",
+          "method": "GET",
+          "url": "http://localhost:8081/api/test-retry",
+          "timeout": 5
+        },
+        "repeats": 5,
+        "tolerance": 200
+      }
+    ],
+    "rollbacks": [
+      {
+        "type": "action",
+        "name": "rollback-backend-healthy",
+        "description": "Ensure backend returns to healthy state after experiment",
+        "provider": {
+          "type": "http",
+          "method": "POST",
+          "url": "http://localhost:8080/config/failure",
+          "timeout": 5,
+          "json": {
+            "failure_rate": 0.0,
+            "status_code": 500
           }
         }
       }
     ],
-    "rollbacks": [],
     "dry": null
   },
-  "start": "2025-11-07T02:35:19.479580+00:00",
+  "start": "2025-11-07T23:40:25.826779+00:00",
   "status": "completed",
   "deviated": false,
   "steady_states": {
@@ -70,10 +115,9 @@
             "tolerance": 200,
             "provider": {
               "type": "http",
-              "timeout": 3,
-              "verify_tls": false,
+              "method": "GET",
               "url": "http://localhost:8081/api/test-retry",
-              "method": "GET"
+              "timeout": 5
             }
           },
           "output": {
@@ -81,16 +125,16 @@
             "headers": {
               "Content-Type": "text/plain;charset=UTF-8",
               "Content-Length": "35",
-              "Date": "Fri, 07 Nov 2025 02:35:20 GMT",
+              "Date": "Fri, 07 Nov 2025 23:40:26 GMT",
               "Keep-Alive": "timeout=60",
               "Connection": "keep-alive"
             },
-            "body": "Backend response OK at1762482919983"
+            "body": "Backend response OK at1762558825957"
           },
-          "start": "2025-11-07T02:35:19.481157+00:00",
+          "start": "2025-11-07T23:40:25.828797+00:00",
           "status": "succeeded",
-          "end": "2025-11-07T02:35:20.044199+00:00",
-          "duration": 0.563042,
+          "end": "2025-11-07T23:40:26.027812+00:00",
+          "duration": 0.199015,
           "tolerance_met": true
         }
       ]
@@ -105,10 +149,9 @@
             "tolerance": 200,
             "provider": {
               "type": "http",
-              "timeout": 3,
-              "verify_tls": false,
+              "method": "GET",
               "url": "http://localhost:8081/api/test-retry",
-              "method": "GET"
+              "timeout": 5
             }
           },
           "output": {
@@ -116,16 +159,16 @@
             "headers": {
               "Content-Type": "text/plain;charset=UTF-8",
               "Content-Length": "35",
-              "Date": "Fri, 07 Nov 2025 02:35:20 GMT",
+              "Date": "Fri, 07 Nov 2025 23:40:31 GMT",
               "Keep-Alive": "timeout=60",
               "Connection": "keep-alive"
             },
-            "body": "Backend response OK at1762482920298"
+            "body": "Backend response OK at1762558831297"
           },
-          "start": "2025-11-07T02:35:20.248340+00:00",
+          "start": "2025-11-07T23:40:31.245525+00:00",
           "status": "succeeded",
-          "end": "2025-11-07T02:35:20.319792+00:00",
-          "duration": 0.071452,
+          "end": "2025-11-07T23:40:31.313199+00:00",
+          "duration": 0.067674,
           "tolerance_met": true
         }
       ]
@@ -136,49 +179,176 @@
     {
       "activity": {
         "type": "action",
-        "name": "delete-backend-pod",
+        "name": "phase-1-set-backend-to-fail",
+        "description": "Phase 1: Configure backend to fail 100% (simulate transient outage)",
         "provider": {
-          "type": "python",
-          "module": "chaosk8s.pod.actions",
-          "func": "terminate_pods",
-          "arguments": {
-            "label_selector": "app=backend",
-            "ns": "default",
-            "rand": true
+          "type": "http",
+          "method": "POST",
+          "url": "http://localhost:8080/config/failure",
+          "timeout": 5,
+          "json": {
+            "failure_rate": 1.0,
+            "status_code": 500
           }
         }
       },
-      "output": [
-        "backend-5846b68bdc-p8fh7"
-      ],
-      "start": "2025-11-07T02:35:20.046375+00:00",
+      "output": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json",
+          "Transfer-Encoding": "chunked",
+          "Date": "Fri, 07 Nov 2025 23:40:25 GMT",
+          "Connection": "close"
+        },
+        "body": {
+          "timestamp": "2025-11-07T23:40:26.047+00:00",
+          "status": 400,
+          "error": "Bad Request",
+          "path": "/config/failure"
+        }
+      },
+      "start": "2025-11-07T23:40:26.030394+00:00",
       "status": "succeeded",
-      "end": "2025-11-07T02:35:20.201092+00:00",
-      "duration": 0.154717
+      "end": "2025-11-07T23:40:26.084335+00:00",
+      "duration": 0.053941
     },
     {
       "activity": {
         "type": "probe",
-        "name": "backend-recovers",
-        "tolerance": true,
+        "name": "phase-1-client-calls-during-failure",
+        "description": "Send 8 concurrent client calls to trigger retries with backoff + jitter",
         "provider": {
-          "type": "python",
-          "module": "chaosk8s.pod.probes",
-          "func": "pods_in_phase",
-          "arguments": {
-            "label_selector": "app=backend",
-            "ns": "default"
+          "type": "http",
+          "method": "GET",
+          "url": "http://localhost:8081/api/test-retry",
+          "timeout": 5
+        },
+        "repeats": 8
+      },
+      "output": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain;charset=UTF-8",
+          "Content-Length": "35",
+          "Date": "Fri, 07 Nov 2025 23:40:26 GMT",
+          "Keep-Alive": "timeout=60",
+          "Connection": "keep-alive"
+        },
+        "body": "Backend response OK at1762558826093"
+      },
+      "start": "2025-11-07T23:40:26.085232+00:00",
+      "status": "succeeded",
+      "end": "2025-11-07T23:40:26.121810+00:00",
+      "duration": 0.036578
+    },
+    {
+      "activity": {
+        "type": "action",
+        "name": "phase-2-restore-backend",
+        "description": "Phase 2: Restore backend after initial failures to simulate recovery",
+        "provider": {
+          "type": "http",
+          "method": "POST",
+          "url": "http://localhost:8080/config/failure",
+          "timeout": 5,
+          "json": {
+            "failure_rate": 0.0,
+            "status_code": 500
+          }
+        },
+        "pauses": {
+          "before": 5
+        }
+      },
+      "output": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json",
+          "Transfer-Encoding": "chunked",
+          "Date": "Fri, 07 Nov 2025 23:40:31 GMT",
+          "Connection": "close"
+        },
+        "body": {
+          "timestamp": "2025-11-07T23:40:31.176+00:00",
+          "status": 400,
+          "error": "Bad Request",
+          "path": "/config/failure"
+        }
+      },
+      "start": "2025-11-07T23:40:31.123685+00:00",
+      "status": "succeeded",
+      "end": "2025-11-07T23:40:31.179211+00:00",
+      "duration": 0.055526
+    },
+    {
+      "activity": {
+        "type": "probe",
+        "name": "phase-3-client-calls-after-recovery",
+        "description": "Phase 3: Verify subsequent client calls succeed (retry closure)",
+        "provider": {
+          "type": "http",
+          "method": "GET",
+          "url": "http://localhost:8081/api/test-retry",
+          "timeout": 5
+        },
+        "repeats": 5,
+        "tolerance": 200
+      },
+      "output": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain;charset=UTF-8",
+          "Content-Length": "35",
+          "Date": "Fri, 07 Nov 2025 23:40:31 GMT",
+          "Keep-Alive": "timeout=60",
+          "Connection": "keep-alive"
+        },
+        "body": "Backend response OK at1762558831229"
+      },
+      "start": "2025-11-07T23:40:31.180426+00:00",
+      "status": "succeeded",
+      "end": "2025-11-07T23:40:31.240458+00:00",
+      "duration": 0.060032
+    }
+  ],
+  "rollbacks": [
+    {
+      "activity": {
+        "type": "action",
+        "name": "rollback-backend-healthy",
+        "description": "Ensure backend returns to healthy state after experiment",
+        "provider": {
+          "type": "http",
+          "method": "POST",
+          "url": "http://localhost:8080/config/failure",
+          "timeout": 5,
+          "json": {
+            "failure_rate": 0.0,
+            "status_code": 500
           }
         }
       },
-      "output": true,
-      "start": "2025-11-07T02:35:20.202011+00:00",
+      "output": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json",
+          "Transfer-Encoding": "chunked",
+          "Date": "Fri, 07 Nov 2025 23:40:31 GMT",
+          "Connection": "close"
+        },
+        "body": {
+          "timestamp": "2025-11-07T23:40:31.357+00:00",
+          "status": 400,
+          "error": "Bad Request",
+          "path": "/config/failure"
+        }
+      },
+      "start": "2025-11-07T23:40:31.316126+00:00",
       "status": "succeeded",
-      "end": "2025-11-07T02:35:20.246469+00:00",
-      "duration": 0.044458
+      "end": "2025-11-07T23:40:31.362402+00:00",
+      "duration": 0.046276
     }
   ],
-  "rollbacks": [],
-  "end": "2025-11-07T02:35:20.321852+00:00",
-  "duration": 0.8423161506652832
+  "end": "2025-11-07T23:40:31.362668+00:00",
+  "duration": 5.535914897918701
 }

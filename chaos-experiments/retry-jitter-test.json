@@ -1,0 +1,96 @@
+{
+  "version": "1.0.0",
+  "title": "Retry with Exponential Backoff and Jitter Validation",
+  "description": "Reproduces retry-jitter-test.py to demonstrate Resilience4j retry behaviour under transient backend failure and recovery.",
+  "steady-state-hypothesis": {
+    "title": "Client is healthy when backend responds normally",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "client-returns-200",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "method": "GET",
+          "url": "http://localhost:8081/api/test-retry",
+          "timeout": 5
+        }
+      }
+    ]
+  },
+  "method": [
+    {
+      "type": "action",
+      "name": "phase-1-set-backend-to-fail",
+      "description": "Phase 1: Configure backend to fail 100% (simulate transient outage)",
+      "provider": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8080/config/failure",
+        "timeout": 5,
+        "json": {
+          "failure_rate": 1.0,
+          "status_code": 500
+        }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "phase-1-client-calls-during-failure",
+      "description": "Send 8 concurrent client calls to trigger retries with backoff + jitter",
+      "provider": {
+        "type": "http",
+        "method": "GET",
+        "url": "http://localhost:8081/api/test-retry",
+        "timeout": 5
+      },
+      "repeats": 8
+    },
+    {
+      "type": "action",
+      "name": "phase-2-restore-backend",
+      "description": "Phase 2: Restore backend after initial failures to simulate recovery",
+      "provider": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8080/config/failure",
+        "timeout": 5,
+        "json": {
+          "failure_rate": 0.0,
+          "status_code": 500
+        }
+      },
+      "pauses": { "before": 5 }
+    },
+    {
+      "type": "probe",
+      "name": "phase-3-client-calls-after-recovery",
+      "description": "Phase 3: Verify subsequent client calls succeed (retry closure)",
+      "provider": {
+        "type": "http",
+        "method": "GET",
+        "url": "http://localhost:8081/api/test-retry",
+        "timeout": 5
+      },
+      "repeats": 5,
+      "tolerance": 200
+    }
+  ],
+  "rollbacks": [
+    {
+      "type": "action",
+      "name": "rollback-backend-healthy",
+      "description": "Ensure backend returns to healthy state after experiment",
+      "provider": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8080/config/failure",
+        "timeout": 5,
+        "json": {
+          "failure_rate": 0.0,
+          "status_code": 500
+        }
+      }
+    }
+  ]
+}

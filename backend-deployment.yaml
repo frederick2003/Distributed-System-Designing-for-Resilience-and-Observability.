@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: backendservice:20251107-015022
+          image: backendservice:20251107-233523
           ports:
             - containerPort: 8080
 ---

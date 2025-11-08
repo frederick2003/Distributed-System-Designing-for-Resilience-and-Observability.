@@ -1,0 +1,122 @@
+{
+  "version": "1.0.0",
+  "title": "Circuit Breaker State Transition Validation (Exact Counts)",
+  "description": "Replicates circuit_breaker_test.py: 5 healthy calls, force 100% failures, 10 calls to open CB, wait 6s, 5 calls in HALF_OPEN, restore backend, wait 6s, 10 final calls.",
+  "steady-state-hypothesis": {
+    "title": "Client healthy when backend is healthy",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "client-returns-200",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "method": "GET",
+          "url": "http://localhost:8081/api/test-circuit",
+          "timeout": 5
+        }
+      }
+    ]
+  },
+  "method": [
+    {
+      "type": "probe",
+      "name": "phase-1-normal-requests-x5",
+      "description": "Phase 1: 5 client calls with backend healthy",
+      "provider": {
+        "type": "http",
+        "method": "GET",
+        "url": "http://localhost:8081/api/test-circuit",
+        "timeout": 5
+      },
+      "tolerance": 200,
+      "repeats": 5
+    },
+    {
+      "type": "action",
+      "name": "phase-2-backend-fails-100pct",
+      "description": "Configure backend to return HTTP 500 at 100% rate",
+      "provider": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8080/config/failure",
+        "timeout": 5,
+        "json": {
+          "failure_rate": 1.0,
+          "status_code": 500
+        }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "phase-2-client-requests-x10-during-failure",
+      "description": "Phase 2: 10 client calls while backend fails (should trigger CB OPEN)",
+      "provider": {
+        "type": "http",
+        "method": "GET",
+        "url": "http://localhost:8081/api/test-circuit",
+        "timeout": 5
+      },
+      "repeats": 10
+    },
+    {
+      "type": "probe",
+      "name": "phase-3-half-open-probe-x5",
+      "description": "Phase 3: wait 6s then 5 client calls during HALF_OPEN",
+      "provider": {
+        "type": "http",
+        "method": "GET",
+        "url": "http://localhost:8081/api/test-circuit",
+        "timeout": 5
+      },
+      "repeats": 5,
+      "pauses": { "before": 6 }
+    },
+    {
+      "type": "action",
+      "name": "phase-4-restore-backend",
+      "description": "Restore backend to healthy (0% failures)",
+      "provider": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8080/config/failure",
+        "timeout": 5,
+        "json": {
+          "failure_rate": 0.0,
+          "status_code": 500
+        }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "phase-4-final-requests-x10",
+      "description": "Phase 4: wait 6s then 10 client calls to confirm CB CLOSED",
+      "provider": {
+        "type": "http",
+        "method": "GET",
+        "url": "http://localhost:8081/api/test-circuit",
+        "timeout": 5
+      },
+      "repeats": 10,
+      "tolerance": 200,
+      "pauses": { "before": 6 }
+    }
+  ],
+  "rollbacks": [
+    {
+      "type": "action",
+      "name": "rollback-backend-healthy",
+      "description": "Ensure backend is left healthy",
+      "provider": {
+        "type": "http",
+        "method": "POST",
+        "url": "http://localhost:8080/config/failure",
+        "timeout": 5,
+        "json": {
+          "failure_rate": 0.0,
+          "status_code": 500
+        }
+      }
+    }
+  ]
+}

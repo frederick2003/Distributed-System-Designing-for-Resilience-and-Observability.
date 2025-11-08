@@ -1,0 +1,178 @@
+{
+  "version": "1.0.0",
+  "title": "Simulate Network Partition to Trigger Circuit Breaker",
+  "description": "Temporarily remove backend connectivity by deleting its pod; observe circuit breaker open/close behaviour.",
+  "steady-state-hypothesis": {
+    "title": "Client healthy before partition",
+    "probes": [
+      {
+        "type": "probe",
+        "name": "client-returns-200",
+        "tolerance": 200,
+        "provider": {
+          "type": "http",
+          "object": "http-request",
+          "timeout": 5,
+          "verify_tls": false,
+          "url": "http://localhost:8081/api/test-circuit",
+          "method": "GET"
+        }
+      }
+    ]
+  },
+  "method": [
+    {
+      "type": "action",
+      "name": "delete-backend-pod-1",
+      "provider": {
+        "type": "python",
+        "object": "k8s/pod",
+        "module": "chaosk8s.pod.actions",
+        "func": "terminate_pods",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default",
+          "rand": true
+        }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "client-during-partition-1",
+      "tolerance": [502, 503, 504],
+      "provider": {
+        "type": "http",
+        "object": "http-request",
+        "timeout": 5,
+        "verify_tls": false,
+        "url": "http://localhost:8081/api/test-circuit",
+        "method": "GET"
+      }
+    },
+    {
+      "type": "probe",
+      "name": "backend-recreated-1",
+      "tolerance": true,
+      "provider": {
+        "type": "python",
+        "object": "k8s/pod",
+        "module": "chaosk8s.pod.probes",
+        "func": "pods_in_phase",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default",
+          "phase": "Running"
+        }
+      }
+    },
+    {
+      "type": "action",
+      "name": "wait-10s-after-restart-1",
+      "provider": {
+        "type": "python",
+        "object": "timer",
+        "module": "pause_action",
+        "func": "pause",
+        "arguments": { "seconds": 1 }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "client-after-recovery-1",
+      "tolerance": 200,
+      "provider": {
+        "type": "http",
+        "object": "http-request",
+        "timeout": 5,
+        "verify_tls": false,
+        "url": "http://localhost:8081/api/test-circuit",
+        "method": "GET"
+      }
+    },
+    {
+      "type": "action",
+      "name": "delete-backend-pod-2",
+      "provider": {
+        "type": "python",
+        "object": "k8s/pod",
+        "module": "chaosk8s.pod.actions",
+        "func": "terminate_pods",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default",
+          "rand": true
+        }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "client-during-partition-2",
+      "tolerance": [502, 503, 504],
+      "provider": {
+        "type": "http",
+        "object": "http-request",
+        "timeout": 5,
+        "verify_tls": false,
+        "url": "http://localhost:8081/api/test-circuit",
+        "method": "GET"
+      }
+    },
+    {
+      "type": "probe",
+      "name": "backend-recreated-2",
+      "tolerance": true,
+      "provider": {
+        "type": "python",
+        "object": "k8s/pod",
+        "module": "chaosk8s.pod.probes",
+        "func": "pods_in_phase",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default",
+          "phase": "Running"
+        }
+      }
+    },
+    {
+      "type": "action",
+      "name": "wait-10s-after-restart-2",
+      "provider": {
+        "type": "python",
+        "object": "timer",
+        "module": "pause_action",
+        "func": "pause",
+        "arguments": { "seconds": 1 }
+      }
+    },
+    {
+      "type": "probe",
+      "name": "client-after-recovery-2",
+      "tolerance": 200,
+      "provider": {
+        "type": "http",
+        "object": "http-request",
+        "timeout": 5,
+        "verify_tls": false,
+        "url": "http://localhost:8081/api/test-circuit",
+        "method": "GET"
+      }
+    }
+  ],
+  "rollbacks": [
+    {
+      "type": "action",
+      "name": "ensure-backend-healthy",
+      "provider": {
+        "type": "python",
+        "object": "k8s/pod",
+        "module": "chaosk8s.pod.probes",
+        "func": "pods_in_phase",
+        "arguments": {
+          "label_selector": "app=backend",
+          "ns": "default",
+          "phase": "Running"
+        }
+      }
+    }
+  ]
+}

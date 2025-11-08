@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: clientservice:20251107-015022
+          image: clientservice:20251107-233523
           env:
             - name: BACKEND_URL
               value: "http://backend:8080/api/data"

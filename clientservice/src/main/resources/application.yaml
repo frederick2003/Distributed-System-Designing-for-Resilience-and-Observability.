@@ -17,16 +17,17 @@ resilience4j:
         sliding-window-size: 10
         failure-rate-threshold: 50
         permitted-number-of-calls-in-half-open-state: 3
-        wait-duration-in-open-state: 5s
+        wait-duration-in-open-state: 6s
         automatic-transition-from-open-to-half-open-enabled: true
         minimum-number-of-calls: 5
+        sliding-window-size-in-open-state: 10
         event-consumer-buffer-size: 10
   retry:
     aspect-order: 2
     instances:
       backendServiceRetry:
-        max-attempts: 10
-        wait-duration: 2s
+        max-attempts: 3
+        wait-duration: 1s
         enable-randomized-wait: true
         randomization-factor: 0.5
         enable-exponential-backoff: true

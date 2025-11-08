@@ -26,33 +26,34 @@ public class ClientService {
         this.retryRegistry = retryRegistry;
     }
 
-    @PostConstruct
-    public void registerCircuitBreakerLogger() {
-        // Access your circuit breaker instance by name
-        io.github.resilience4j.circuitbreaker.CircuitBreaker breaker =
-                circuitBreakerRegistry.circuitBreaker("backendServiceBreaker");
-
-        // Listen for state changes
-        breaker.getEventPublisher()
-                .onStateTransition(this::logStateChange);
-    }
 
     @PostConstruct
-    public void registerRetryLogger(){
-        io.github.resilience4j.retry.Retry retry =  
-                retryRegistry.retry("backendServiceRetry");
+    public void registerResilienceLoggers() {
+    // --- Circuit Breaker logging ---
+    io.github.resilience4j.circuitbreaker.CircuitBreaker breaker =
+            circuitBreakerRegistry.circuitBreaker("backendServiceBreaker");
 
-        retry.getEventPublisher().onRetry(event -> {
+    breaker.getEventPublisher()
+            .onStateTransition(this::logStateChange);
+
+    // --- Retry logging ---
+    io.github.resilience4j.retry.Retry retry =
+            retryRegistry.retry("backendServiceRetry");
+
+    retry.getEventPublisher().onRetry(event -> {
         Duration wait = event.getWaitInterval();
         Throwable cause = event.getLastThrowable();
-        logger.info("Retry attempt #{} for '{}' after delay {} ms (cause: {})",
+        logger.info("[RETRY TEST] Retry attempt #{} for '{}' after delay {} ms (cause: {})",
                 event.getNumberOfRetryAttempts(),
                 event.getName(),
                 wait != null ? wait.toMillis() : 0,
                 cause != null ? cause.getClass().getSimpleName() : "unknown");
-    });
-        logger.info("retry listener registered for '{}'", retry.getName());
-    }
+    })
+    .onSuccess(event -> logger.info("[RETRY TEST] Retry '{}' succeeded after {} attempts.",
+            event.getName(), event.getNumberOfRetryAttempts()));
+
+    logger.info("Resilience4j loggers registered successfully (CB + Retry).");
+}
 
     private void logStateChange(CircuitBreakerOnStateTransitionEvent event) {
         logger.info("CircuitBreaker '{}' transitioned from {} to {}",

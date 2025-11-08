@@ -1,0 +1,234 @@
+[2025-11-07 15:44:10] Starting baseline test...
+[2025-11-07 15:44:10] === Testing normal operation ===
+[2025-11-07 15:44:12] Request 1: 404 - {"timestamp":"2025-11-07T15:44:12.095+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:13] Request 2: 404 - {"timestamp":"2025-11-07T15:44:13.782+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:14] Request 3: 404 - {"timestamp":"2025-11-07T15:44:14.799+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:15] Request 4: 404 - {"timestamp":"2025-11-07T15:44:15.833+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:16] Request 5: 404 - {"timestamp":"2025-11-07T15:44:16.893+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:17] Configuring backend latency: 2000 ms delay, 0.5 rate
+[2025-11-07 15:44:20] Latency config response: 200
+[2025-11-07 15:44:20] Configuring backend failures: HTTP 500 with rate 0.5
+[2025-11-07 15:44:20] Failure config response: 200
+[2025-11-07 15:44:20] === Testing under latency/failure conditions ===
+[2025-11-07 15:44:20] Request 1: 404 - {"timestamp":"2025-11-07T15:44:20.682+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:21] Request 2: 404 - {"timestamp":"2025-11-07T15:44:21.715+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:22] Request 3: 404 - {"timestamp":"2025-11-07T15:44:22.817+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:23] Request 4: 404 - {"timestamp":"2025-11-07T15:44:23.847+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:24] Request 5: 404 - {"timestamp":"2025-11-07T15:44:24.877+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:44:25] Baseline test completed.
+[2025-11-07 15:50:54] Starting baseline test sequence...
+
+[2025-11-07 15:50:58] Backend configuration reset to normal state.
+[2025-11-07 15:50:58] === TEST 1: Normal Operation ===
+[2025-11-07 15:51:01] Request 1 failed: HTTPConnectionPool(host='localhost', port=8081): Read timed out. (read timeout=3)
+[2025-11-07 15:51:02] Request 2: 404 - {"timestamp":"2025-11-07T15:51:02.698+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:03] Request 3: 404 - {"timestamp":"2025-11-07T15:51:03.794+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:05] Request 4: 404 - {"timestamp":"2025-11-07T15:51:04.911+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:06] Request 5: 404 - {"timestamp":"2025-11-07T15:51:05.991+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:07] === End of TEST 1: Normal Operation ===
+
+[2025-11-07 15:51:07] Latency configured: 2000ms delay, rate 0.5 (Response 200)
+[2025-11-07 15:51:07] Failure configured: HTTP 200, rate 0 (Response 200)
+[2025-11-07 15:51:07] === TEST 2: Latency Introduced ===
+[2025-11-07 15:51:07] Request 1: 404 - {"timestamp":"2025-11-07T15:51:07.103+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:08] Request 2: 404 - {"timestamp":"2025-11-07T15:51:08.142+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:09] Request 3: 404 - {"timestamp":"2025-11-07T15:51:09.185+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:10] Request 4: 404 - {"timestamp":"2025-11-07T15:51:10.208+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:11] Request 5: 404 - {"timestamp":"2025-11-07T15:51:11.226+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:12] === End of TEST 2: Latency Introduced ===
+
+[2025-11-07 15:51:12] Latency configured: 0ms delay, rate 0 (Response 200)
+[2025-11-07 15:51:12] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 15:51:12] === TEST 3: Failures Introduced ===
+[2025-11-07 15:51:12] Request 1: 404 - {"timestamp":"2025-11-07T15:51:12.392+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:13] Request 2: 404 - {"timestamp":"2025-11-07T15:51:13.478+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:14] Request 3: 404 - {"timestamp":"2025-11-07T15:51:14.547+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:15] Request 4: 404 - {"timestamp":"2025-11-07T15:51:15.622+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:16] Request 5: 404 - {"timestamp":"2025-11-07T15:51:16.680+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:17] === End of TEST 3: Failures Introduced ===
+
+[2025-11-07 15:51:17] Latency configured: 1500ms delay, rate 0.5 (Response 200)
+[2025-11-07 15:51:17] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 15:51:17] === TEST 4: Latency and Failures Combined ===
+[2025-11-07 15:51:17] Request 1: 404 - {"timestamp":"2025-11-07T15:51:17.809+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:18] Request 2: 404 - {"timestamp":"2025-11-07T15:51:18.857+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:19] Request 3: 404 - {"timestamp":"2025-11-07T15:51:19.898+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:20] Request 4: 404 - {"timestamp":"2025-11-07T15:51:20.953+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:21] Request 5: 404 - {"timestamp":"2025-11-07T15:51:21.984+00:00","status":404,"error":"Not Found","path":"/api/data"}
+[2025-11-07 15:51:22] === End of TEST 4: Latency and Failures Combined ===
+
+[2025-11-07 15:51:23] Backend configuration reset to normal state.
+[2025-11-07 15:51:23] Baseline testing completed. All configurations reset.
+[2025-11-07 15:54:33] Starting baseline test sequence...
+
+[2025-11-07 15:54:34] Backend configuration reset to normal state.
+[2025-11-07 15:54:34] === TEST 1: Normal Operation ===
+[2025-11-07 15:54:34] Request 1: 200 - Latency spike introduced
+Backend response OK at1762530874302
+[2025-11-07 15:54:35] Request 2: 200 - Latency spike introduced
+Backend response OK at1762530875388
+[2025-11-07 15:54:36] Request 3: 200 - Latency spike introduced
+Backend response OK at1762530876425
+[2025-11-07 15:54:37] Request 4: 200 - Latency spike introduced
+Backend response OK at1762530877468
+[2025-11-07 15:54:38] Request 5: 200 - Latency spike introduced
+Backend response OK at1762530878491
+[2025-11-07 15:54:39] === End of TEST 1: Normal Operation ===
+
+[2025-11-07 15:54:39] Latency configured: 2000ms delay, rate 0.5 (Response 200)
+[2025-11-07 15:54:39] Failure configured: HTTP 200, rate 0 (Response 200)
+[2025-11-07 15:54:39] === TEST 2: Latency Introduced ===
+[2025-11-07 15:54:41] Request 1: 200 - Latency spike introduced
+Backend response OK at1762530881574
+[2025-11-07 15:54:42] Request 2: 200 - Latency spike introduced
+Backend response OK at1762530882594
+[2025-11-07 15:54:43] Request 3: 200 - Latency spike introduced
+Backend response OK at1762530883630
+[2025-11-07 15:54:46] Request 4: 200 - Latency spike introduced
+Backend response OK at1762530886656
+[2025-11-07 15:54:47] Request 5: 200 - Latency spike introduced
+Backend response OK at1762530887694
+[2025-11-07 15:54:48] === End of TEST 2: Latency Introduced ===
+
+[2025-11-07 15:54:48] Latency configured: 0ms delay, rate 0 (Response 200)
+[2025-11-07 15:54:48] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 15:54:48] === TEST 3: Failures Introduced ===
+[2025-11-07 15:54:49] Request 1: 500 - {"timestamp":"2025-11-07T15:54:49.081+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 15:54:50] Request 2: 500 - {"timestamp":"2025-11-07T15:54:50.239+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 15:54:51] Request 3: 500 - {"timestamp":"2025-11-07T15:54:51.271+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 15:54:52] Request 4: 200 - Latency spike introduced
+HTTP error with probability 50.0% chance of occuring introduced
+Backend response OK at1762530892299
+[2025-11-07 15:54:53] Request 5: 200 - Latency spike introduced
+HTTP error with probability 50.0% chance of occuring introduced
+Backend response OK at1762530893326
+[2025-11-07 15:54:54] === End of TEST 3: Failures Introduced ===
+
+[2025-11-07 15:54:54] Latency configured: 1500ms delay, rate 0.5 (Response 200)
+[2025-11-07 15:54:54] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 15:54:54] === TEST 4: Latency and Failures Combined ===
+[2025-11-07 15:54:54] Request 1: 500 - {"timestamp":"2025-11-07T15:54:54.394+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 15:54:55] Request 2: 200 - Latency spike introduced
+HTTP error with probability 50.0% chance of occuring introduced
+Backend response OK at1762530895410
+[2025-11-07 15:54:56] Request 3: 200 - Latency spike introduced
+HTTP error with probability 50.0% chance of occuring introduced
+Backend response OK at1762530896444
+[2025-11-07 15:54:59] Request 4: 500 - {"timestamp":"2025-11-07T15:54:59.056+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 15:55:01] Request 5: 200 - Latency spike introduced
+HTTP error with probability 50.0% chance of occuring introduced
+Backend response OK at1762530901601
+[2025-11-07 15:55:02] === End of TEST 4: Latency and Failures Combined ===
+
+[2025-11-07 15:55:02] Backend configuration reset to normal state.
+[2025-11-07 15:55:02] Baseline testing completed. All configurations reset.
+[2025-11-07 16:16:32] Starting baseline test sequence...
+
+[2025-11-07 16:16:36] Backend configuration reset to normal state.
+[2025-11-07 16:16:36] === TEST 1: Normal Operation ===
+[2025-11-07 16:16:36] Request 1: 200 - Backend response OK at1762532196282
+[2025-11-07 16:16:37] Request 2: 200 - Backend response OK at1762532197335
+[2025-11-07 16:16:38] Request 3: 200 - Backend response OK at1762532198369
+[2025-11-07 16:16:39] Request 4: 200 - Backend response OK at1762532199387
+[2025-11-07 16:16:40] Request 5: 200 - Backend response OK at1762532200457
+[2025-11-07 16:16:41] === End of TEST 1: Normal Operation ===
+
+[2025-11-07 16:16:41] Latency configured: 2000ms delay, rate 0.5 (Response 200)
+[2025-11-07 16:16:41] Failure configured: HTTP 200, rate 0 (Response 200)
+[2025-11-07 16:16:41] === TEST 2: Latency Introduced ===
+[2025-11-07 16:16:41] Request 1: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532201565
+[2025-11-07 16:16:44] Request 2: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532204623
+[2025-11-07 16:16:45] Request 3: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532205687
+[2025-11-07 16:16:46] Request 4: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532206766
+[2025-11-07 16:16:47] Request 5: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532207836
+[2025-11-07 16:16:48] === End of TEST 2: Latency Introduced ===
+
+[2025-11-07 16:16:48] Latency configured: 0ms delay, rate 0 (Response 200)
+[2025-11-07 16:16:48] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 16:16:48] === TEST 3: Failures Introduced ===
+[2025-11-07 16:16:49] Request 1: 500 - {"timestamp":"2025-11-07T16:16:49.167+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:16:50] Request 2: 500 - {"timestamp":"2025-11-07T16:16:50.276+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:16:51] Request 3: 500 - {"timestamp":"2025-11-07T16:16:51.315+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:16:52] Request 4: 200 - HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532212351
+[2025-11-07 16:16:53] Request 5: 200 - HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532213372
+[2025-11-07 16:16:54] === End of TEST 3: Failures Introduced ===
+
+[2025-11-07 16:16:54] Latency configured: 1500ms delay, rate 0.5 (Response 200)
+[2025-11-07 16:16:54] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 16:16:54] === TEST 4: Latency and Failures Combined ===
+[2025-11-07 16:16:54] Request 1: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532214446
+[2025-11-07 16:16:56] Request 2: 500 - {"timestamp":"2025-11-07T16:16:56.975+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:16:57] Request 3: 500 - {"timestamp":"2025-11-07T16:16:57.988+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:17:00] Request 4: 200 - Latency spike with probability 50.0% chance of occurring %introduced
+HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532220506
+[2025-11-07 16:17:03] Request 5: 500 - {"timestamp":"2025-11-07T16:17:03.024+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:17:04] === End of TEST 4: Latency and Failures Combined ===
+
+[2025-11-07 16:17:04] Backend configuration reset to normal state.
+[2025-11-07 16:17:04] Baseline testing completed. All configurations reset.
+[2025-11-07 16:22:08] Starting baseline test sequence...
+
+[2025-11-07 16:22:11] Backend configuration reset to normal state.
+[2025-11-07 16:22:11] === TEST 1: Normal Operation ===
+[2025-11-07 16:22:12] Request 1: 200 | 172.51 ms | Backend response OK at1762532531904
+[2025-11-07 16:22:13] Request 2: 200 | 201.62 ms | Backend response OK at1762532533130
+[2025-11-07 16:22:14] Request 3: 200 | 302.39 ms | Backend response OK at1762532534453
+[2025-11-07 16:22:15] Request 4: 200 | 49.52 ms | Backend response OK at1762532535619
+[2025-11-07 16:22:16] Request 5: 200 | 37.68 ms | Backend response OK at1762532536676
+[2025-11-07 16:22:17] === End of TEST 1: Normal Operation ===
+
+[2025-11-07 16:22:17] Latency configured: 2000ms delay, rate 0.5 (Response 200)
+[2025-11-07 16:22:17] Failure configured: HTTP 200, rate 0 (Response 200)
+[2025-11-07 16:22:17] === TEST 2: Latency Introduced ===
+[2025-11-07 16:22:17] Request 1: 200 | 47.23 ms | Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532537975
+[2025-11-07 16:22:21] Request 2: 200 | 2256.29 ms | Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532541250
+[2025-11-07 16:22:24] Request 3: 200 | 2050.68 ms | Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532544333
+[2025-11-07 16:22:27] Request 4: 200 | 2039.80 ms | Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532547393
+[2025-11-07 16:22:30] Request 5: 200 | 2034.37 ms | Latency spike with probability 50.0% chance of occurring %introduced
+Backend response OK at1762532550415
+[2025-11-07 16:22:31] === End of TEST 2: Latency Introduced ===
+
+[2025-11-07 16:22:31] Latency configured: 0ms delay, rate 0 (Response 200)
+[2025-11-07 16:22:31] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 16:22:31] === TEST 3: Failures Introduced ===
+[2025-11-07 16:22:31] Request 1: 200 | 75.91 ms | HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532551625
+[2025-11-07 16:22:32] Request 2: 500 | 97.93 ms | {"timestamp":"2025-11-07T16:22:32.699+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:22:33] Request 3: 200 | 40.60 ms | HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532553762
+[2025-11-07 16:22:34] Request 4: 200 | 14.34 ms | HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532554770
+[2025-11-07 16:22:35] Request 5: 200 | 35.12 ms | HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532555797
+[2025-11-07 16:22:36] === End of TEST 3: Failures Introduced ===
+
+[2025-11-07 16:22:36] Latency configured: 1500ms delay, rate 0.5 (Response 200)
+[2025-11-07 16:22:36] Failure configured: HTTP 500, rate 0.5 (Response 200)
+[2025-11-07 16:22:36] === TEST 4: Latency and Failures Combined ===
+[2025-11-07 16:22:38] Request 1: 200 | 1533.68 ms | Latency spike with probability 50.0% chance of occurring %introduced
+HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532558372
+[2025-11-07 16:22:40] Request 2: 500 | 1546.31 ms | {"timestamp":"2025-11-07T16:22:40.893+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:22:41] Request 3: 200 | 54.96 ms | Latency spike with probability 50.0% chance of occurring %introduced
+HTTP error with probability 50.0% chance of occurring introduced
+Backend response OK at1762532561933
+[2025-11-07 16:22:44] Request 4: 500 | 1548.07 ms | {"timestamp":"2025-11-07T16:22:44.469+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:22:47] Request 5: 500 | 1551.48 ms | {"timestamp":"2025-11-07T16:22:47.511+00:00","status":500,"error":"Internal Server Error","path":"/api/data"}
+[2025-11-07 16:22:48] === End of TEST 4: Latency and Failures Combined ===
+
+[2025-11-07 16:22:48] Backend configuration reset to normal state.
+[2025-11-07 16:22:48] Baseline testing completed. All configurations reset.
