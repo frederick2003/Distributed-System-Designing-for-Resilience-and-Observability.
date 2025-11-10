@@ -1,46 +1,23 @@
 # Setup
 
-## Building and Loading Docker Images
-
-**1. Build the images locally**
+## Build the 3 node cluster by running:
 ```bash
-cd backendservice
-docker build -t backendservice:1.2 .
-
-cd ../clientservice
-docker build -t clientservice:1.2 .
+kind create cluster --name lab3 --config kind-multi-node.yaml
+```
+If already built use commands:
+```bash
+// To stop the node
+docker stop lab3-control-plane lab3-worker lab3-worker2
+// To restart the nodes
+docker restart lab3-control-plane lab3-worker lab3-worker2
 ```
 
-**Check**
+## Configuring the cluster
+Run:
 ```bash
-docker images
+cd run-scripts
+.\rebuild.ps1
 ```
-
-**2. Load the images into Kind**
-
-```bash
-kind load docker-image backendservice:1.2 --name lab3
-kind load docker-image clientservice:1.2 --name lab3
-```
-
-**3. Deploy to Kubernetes**
-
-```bash
-kubectl apply -f backend-deployment.yaml
-kubectl apply -f client-deployment.yaml
-```
-
-**Verify:**
-```bash
-kubectl get pods -o wide
-kubectl get svc
-```
-
-**View Pod Logs**
-```bash
-kubectl logs <pod-name> -f
-```
-
 
 ## Accessing the Application
 Using Port Forwarding to expose the port on your local machine:
@@ -49,44 +26,26 @@ kubectl port-forward svc/client 8081:8081
 kubectl port-forward svc/backend 8080:8080
 ```
 ****
-Client url: http://localhost:8081/api/request-backend
-
-Backend url: http://localhost:8080/api/data
-
-## Complete workflow
-**Start**
+## Run Python tests by using:
 ```bash
-# 1. Start Docker Desktop
-# 2. Recreate or ensure Kind cluster is active
-kind get clusters
-kind create cluster --name lab3 --config kind-multi-node.yaml  # if missing
-
-# 3. Load images (if rebuilt)
-kind load docker-image backendservice:1.2 --name lab3
-kind load docker-image clientservice:1.2 --name lab3
-
-# 4. Apply manifests
-kubectl apply -f backend-deployment.yaml
-kubectl apply -f client-deployment.yaml
+cd python-testing-scripts
+python .\baseline-test.py
+python .\circuit_breaker_test.py
+python .\retry_test.py
+python .\retry-jitter-test.py
 ```
 
-**Example of latency configuration JSON**
-```yaml
-{
-   "delay_rate": "0.2",
-   "delay_ms": "200"
-}
+## Run chaos experiments by 
+1. Installing choas toolkit dependencies (virtual environment advised)
+2. Running the test scripts
+```bash
+cd chaos-experiments
+chaos run circuit-breaker-test.json
+chaos run network-partition.json
+chaos run trigger-circuit-breaker.json
+chaos run retry-jitter-test.json
+chaos run trigger-retry.json
 ```
-
-**Example of HTTP Request Error**
-
-```yaml
-{
-  "failure_rate": "0.2",
-  "status_code": "500"
-}
-```
-
 
 
 **Start**
